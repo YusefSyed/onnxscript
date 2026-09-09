@@ -183,8 +183,8 @@ def main() -> int:
         (ref_results / "result.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
 
     (results / "onnx-ir-source-limitation.txt").write_text(
-        "onnx-ir==1.1.0 is pinned as the released package version reported by the failed head job. "
-        "The original git commit for that installed package was unavailable, so this comparison cannot "
+        "ONNX IR is pinned to upstream Git commit 641d90447cac737fabd43d94ea8c1796bde3e3b4 for this controlled comparison. "
+        "The original job reported version 1.1.0 but did not expose its installed Git SHA, so this comparison cannot "
         "attribute it to an exact onnx-ir source commit.\n",
         encoding="utf-8",
     )

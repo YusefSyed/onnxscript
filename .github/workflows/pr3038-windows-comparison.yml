@@ -23,8 +23,11 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
-          python -m pip install expecttest==0.1.6 hypothesis packaging parameterized pytest-cov pytest-xdist pyyaml types-PyYAML "typing_extensions>=4.10" ml-dtypes torch==2.7.1 torchvision==0.22.1 onnx==1.18.0 onnxruntime==1.23.0 numpy==2.4.6 onnx-ir==1.1.0 transformers==4.37.2 pytest==9.1.1 pytest-randomly==5.0.0 pytest-subtests==0.15.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip install expecttest==0.1.6 hypothesis packaging parameterized pytest-cov pytest-xdist pyyaml types-PyYAML "typing_extensions>=4.10" ml-dtypes torch==2.7.1 torchvision==0.22.1 onnx==1.18.0 onnxruntime==1.23.0 numpy==2.4.6 "onnx-ir @ git+https://github.com/onnx/ir-py.git@641d90447cac737fabd43d94ea8c1796bde3e3b4" transformers==4.37.2 pytest==9.1.1 pytest-randomly==5.0.0 pytest-subtests==0.15.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m pip install . --no-deps
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Capture shared environment
         shell: pwsh
         run: |
