@@ -1,0 +1,50 @@
+name: PR 3038 Windows comparison
+
+on:
+  push:
+    branches: [codex/erfcx-review-validation]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+      - name: Install fixed test environment
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install expecttest==0.1.6 hypothesis packaging parameterized pytest-cov pytest-xdist pyyaml types-PyYAML "typing_extensions>=4.10" ml-dtypes torch==2.7.1 torchvision==0.22.1 onnx==1.18.0 onnxruntime==1.23.0 numpy==2.4.6 onnx-ir==1.1.0 transformers==4.37.2 pytest==9.1.1 pytest-randomly==5.0.0 pytest-subtests==0.15.0
+          python -m pip install . --no-deps
+      - name: Capture shared environment
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force ci-results | Out-Null
+          python -m pip freeze | Out-File -Encoding utf8 ci-results/pip-freeze.txt
+      - name: Compare requested source refs
+        shell: pwsh
+        run: python tools/ci/run_windows_erfcx_comparison.py
+      - name: Publish comparison summary
+        if: always()
+        shell: pwsh
+        run: Get-Content ci-results/summary.md | Out-File -Append -Encoding utf8 $env:GITHUB_STEP_SUMMARY
+      - name: Upload comparison evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pr3038-windows-comparison
+          path: ci-results
+          if-no-files-found: error
+      - name: Preserve comparison status
+        if: always()
+        shell: pwsh
+        run: exit [int](Get-Content ci-results/overall-exit-code.txt)
